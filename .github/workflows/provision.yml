@@ -25,10 +25,10 @@ jobs:
           aws-region: us-east-1
 
       - name: Initialize Terraform
-        run: terraform init
+        run: terraform init -chdir=./tf-manifests
 
       - name: Plan Terraform changes
-        run: terraform plan
+        run: terraform plan -chdir=./tf-manifests
 
       - name: Apply Terraform changes
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -chdir=./tf-manifests
