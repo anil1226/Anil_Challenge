@@ -27,11 +27,19 @@ jobs:
       - name: Change to the directory
         run: cd ./tf-manifests
 
-      - name: Initialize Terraform
+      - name: Terraform Init
+        id: init
         run: terraform init
+      
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
 
-      - name: Plan Terraform changes
+      - name: Terraform Plan
+        id: plan
         run: terraform plan
+        continue-on-error: true
 
-      - name: Apply Terraform changes
-        run: terraform apply -auto-approve
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
