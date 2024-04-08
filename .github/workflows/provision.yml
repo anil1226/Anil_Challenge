@@ -7,6 +7,9 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./tf-manifests
 
     steps:
       - name: Checkout repository
@@ -23,9 +26,6 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-
-      - name: Change to the directory
-        run: cd ./tf-manifests
 
       - name: Terraform Init
         id: init
