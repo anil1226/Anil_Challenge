@@ -24,11 +24,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
+      - name: Change to the directory
+        run: cd ./tf-manifests
+
       - name: Initialize Terraform
-        run: terraform init -chdir=./tf-manifests
+        run: terraform init
 
       - name: Plan Terraform changes
-        run: terraform plan -chdir=./tf-manifests
+        run: terraform plan
 
       - name: Apply Terraform changes
-        run: terraform apply -auto-approve -chdir=./tf-manifests
+        run: terraform apply -auto-approve
