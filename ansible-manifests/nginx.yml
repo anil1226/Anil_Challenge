@@ -45,11 +45,8 @@
         path: "{{ cert_dir }}/{{ cert_name }}.csr"
         privatekey_path: "{{ cert_dir }}/{{ cert_name }}.key"
         common_name: "{{ cert_name }}"
-        country_name: "US"
-        state_or_province_name: "New York"
-        locality_name: "New York"
-        organization_name: "Example"
         subject: "{{ cert_subject }}"
+        subject_alt_name: "DNS:{{ cert_name }}"
 
     - name: Generate self-signed certificate
       openssl_certificate:

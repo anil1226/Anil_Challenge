@@ -29,6 +29,5 @@ jobs:
           run: |
             service ssh status
             cd ./ansible-manifests
-            cat nginx.yml
             ansible-playbook -vvv --private-key /home/runner/.ssh/id_rsa -i inventory.cfg nginx.yml -b
   
