@@ -1,5 +1,9 @@
 ---
 - hosts: all
+  vars:
+    cert_dir: /etc/nginx/ssl
+    cert_name: example.com
+    cert_subject: "/C=US/ST=New York/L=New York/O=Example/CN=example.com"
   become: true
   tasks:
     - name: Install Nginx
@@ -26,51 +30,33 @@
           </html
       notify: restart nginx
 
-    - name: Create SSL directory for Nginx
+    - name: Create directory for SSL certificates
       file:
-        path: /etc/nginx/ssl
+        path: "{{ cert_dir }}"
         state: directory
-        mode: '0755'
 
-    - name: Generate a private key
+    - name: Generate private key
       openssl_privatekey:
-        path: /etc/nginx/ssl/nginx.key
+        path: "{{ cert_dir }}/{{ cert_name }}.key"
         size: 2048
-        type: RSA
 
-    - name: Generate a CSR
+    - name: Generate CSR (Certificate Signing Request)
       openssl_csr:
-        path: /etc/nginx/ssl/nginx.csr
-        privatekey_path: /etc/nginx/ssl/nginx.key
-        common_name: example.com
-        organization_name: Example Company
-        country_name: US
-        state_or_province_name: California
-        locality_name: San Francisco
-        email_address: admin@example.com
+        path: "{{ cert_dir }}/{{ cert_name }}.csr"
+        privatekey_path: "{{ cert_dir }}/{{ cert_name }}.key"
+        common_name: "{{ cert_name }}"
+        country_name: "US"
+        state_or_province_name: "New York"
+        locality_name: "New York"
+        organization_name: "Example"
 
-    - name: Create a self-signed certificate
+    - name: Generate self-signed certificate
       openssl_certificate:
-        path: /etc/nginx/ssl/nginx.crt
-        csr_path: /etc/nginx/ssl/nginx.csr
-        privatekey_path: /etc/nginx/ssl/nginx.key
+        path: "{{ cert_dir }}/{{ cert_name }}.crt"
+        privatekey_path: "{{ cert_dir }}/{{ cert_name }}.key"
+        csr_path: "{{ cert_dir }}/{{ cert_name }}.csr"
         provider: selfsigned
-        force: true
-
-    - name: Configure Nginx default server block to use the self-signed certificate
-      lineinfile:
-        path: /etc/nginx/conf.d/default.conf
-        regexp: ^(\s+)ssl_certificate
-        line: \1ssl_certificate /etc/nginx/ssl/nginx.crt;
-        create: yes
-      notify: restart nginx
-
-    - name: Configure Nginx default server block to use the private key for the self-signed certificate
-      lineinfile:
-        path: /etc/nginx/conf.d/default.conf
-        regexp: ^(\s+)ssl_certificate_key
-        line: \1ssl_certificate_key /etc/nginx/ssl/nginx.key;
-      notify: restart nginx
+        subject: "{{ cert_subject }}"
 
   handlers:
     - name: restart nginx
