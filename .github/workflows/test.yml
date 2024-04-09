@@ -2,7 +2,7 @@ name: Server Configuration Tests
 on:
     push:
       branches:
-        - master
+        - main
 
 jobs:
 
