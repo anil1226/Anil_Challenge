@@ -7,13 +7,23 @@
         name: nginx
         state: present
 
-    - name: Copy index.html file
-      template:
-        src: ../index.html
-        dest: /usr/share/nginx/html/index.html
-        owner: nginx
-        group: nginx
-        mode: '0644'
+    - name: Delete file
+      file:
+        path: /var/www/html/index.html
+        state: absent
+
+    - name: Creating a file with content
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <html>
+          <head>
+          <title>Hello World</title>
+          </head>
+          <body>
+          <h1>Hello World!</h1>
+          </body>
+          </html
     - name: Reload Nginx
       service:
         name: nginx
