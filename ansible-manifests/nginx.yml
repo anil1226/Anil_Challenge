@@ -1,16 +1,37 @@
 ---
-- hosts: web
+- hosts: all
+  become: true
   tasks:
-    - name: install nginx
-      apt: name=nginx state=latest
-    - name: Copy index.html file
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Create directory for static content
+      file:
+        path: /var/www/html/hello-world
+        state: directory
+        mode: 0755
+
+    - name: Create "index.html" file with "hello world" content
       template:
-        src: ./index.html
-        dest: /usr/share/nginx/html/index.html
-        owner: nginx
-        group: nginx
-        mode: '0644'
-    - name: start nginx
+        src: "index.html"
+        dest: /var/www/html/hello-world/index.html
+        mode: 0644
+    - name: Copy "index.html" to default Nginx location
+      copy:
+        src: /var/www/html/hello-world/index.html
+        dest: /var/www/html/index.html
+        mode: 0644
+        remote_src: true
+
+    - name: Enable default Nginx website
+      file:
+        src: /etc/nginx/sites-available/default
+        path: /etc/nginx/sites-enabled/default
+        state: link
+
+    - name: Restart Nginx
       service:
-          name: nginx
-          state: started
+        name: nginx
+        state: restarted
