@@ -2,7 +2,7 @@ name: Ansible Configuration
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
     run-playbooks:
       runs-on: ubuntu-latest
