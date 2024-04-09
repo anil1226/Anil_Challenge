@@ -25,6 +25,27 @@
           </body>
           </html
       notify: restart nginx
+    - name: Install required packages
+      apt:
+        name:
+          - openssl
+        state: present
+
+    - name: Create self-signed SSL certificate
+      openssl_certificate:
+        path: /etc/ssl/certs/nginx-selfsigned.crt
+        privatekey_path: /etc/ssl/private/nginx-selfsigned.key
+        state: present
+        organization_name: "Your Company"
+        country_name: "US"
+        email_address: "your_email@example.com"
+        force: true
+
+    - name: Create Diffie-Hellman group
+      openssl_dhparam:
+        path: /etc/ssl/certs/dhparam.pem
+        size: 2048
+        force: true
 
   handlers:
     - name: restart nginx
