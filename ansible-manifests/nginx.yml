@@ -35,6 +35,7 @@
       openssl_certificate:
         path: /etc/ssl/certs/nginx-selfsigned.crt
         privatekey_path: /etc/ssl/private/nginx-selfsigned.key
+        provider: selfsigned
         state: present
         organization_name: "Your Company"
         country_name: "US"
