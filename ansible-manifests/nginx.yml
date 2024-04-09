@@ -26,15 +26,29 @@
           </html
       notify: restart nginx
 
-    - name: Create self-signed SSL/TLS certificate
+    - name: Generate a private key
+      openssl_privatekey:
+        path: /etc/nginx/ssl/nginx.key
+        size: 2048
+        type: RSA
+
+    - name: Generate a CSR
+      openssl_csr:
+        path: /etc/nginx/ssl/nginx.csr
+        privatekey_path: /etc/nginx/ssl/nginx.key
+        common_name: example.com
+        organization_name: Example Company
+        country_name: US
+        state_or_province_name: California
+        locality_name: San Francisco
+        email_address: admin@example.com
+
+    - name: Create a self-signed certificate
       openssl_certificate:
         path: /etc/nginx/ssl/nginx.crt
-        privatekey_path: /etc/nginx/ssl/nginx.key
         csr_path: /etc/nginx/ssl/nginx.csr
+        privatekey_path: /etc/nginx/ssl/nginx.key
         provider: selfsigned
-        subject:
-          commonName: "52.207.40.195"
-        selfsigned_digest: sha256
         force: true
 
     - name: Configure Nginx to use the self-signed certificate
