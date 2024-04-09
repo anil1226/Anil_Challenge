@@ -26,6 +26,12 @@
           </html
       notify: restart nginx
 
+    - name: Create SSL directory for Nginx
+      file:
+        path: /etc/nginx/ssl
+        state: directory
+        mode: '0755'
+
     - name: Generate a private key
       openssl_privatekey:
         path: /etc/nginx/ssl/nginx.key
