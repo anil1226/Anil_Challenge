@@ -25,28 +25,28 @@
           </body>
           </html
       notify: restart nginx
-    - name: Install required packages
-      apt:
-        name:
-          - openssl
-        state: present
+    - name: Create the private key
+      community.crypto.openssl_privatekey:
+        path: /registry/certs/tls.key
+        size: 4096
 
-    - name: Create self-signed SSL certificate
-      openssl_certificate:
-        path: /etc/ssl/certs/nginx-selfsigned.crt
-        privatekey_path: /etc/ssl/private/nginx-selfsigned.key
+    - name: Create certificate signing request (CSR) for self-signed certificate
+      community.crypto.openssl_csr_pipe:
+        privatekey_path: /registry/certs/tls.key
+        common_name: docker-registry
+        subject_alt_name:
+          - "DNS:docker-registry"
+      register: csr
+
+    - name: Create self-signed certificate from CSR
+      community.crypto.x509_certificate:
+        path: /registry/certs/tls.crt
+        csr_content: "{{ csr.csr }}"
+        privatekey_path: /registry/certs/tls.crt
         provider: selfsigned
-        state: present
-        organization_name: "Your Company"
-        country_name: "US"
-        email_address: "your_email@example.com"
-        force: true
-
-    - name: Create Diffie-Hellman group
-      openssl_dhparam:
-        path: /etc/ssl/certs/dhparam.pem
-        size: 2048
-        force: true
+        selfsigned_not_after: +365d # valid for one year
+        selfsigned_not_before: "-1d" # valid since yesterday
+        selfsigned_digest: "sha256" # this is the default and can be omitted
 
   handlers:
     - name: restart nginx
