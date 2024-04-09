@@ -24,7 +24,38 @@
           <h1>Hello World!</h1>
           </body>
           </html
-    - name: Reload Nginx
+      notify: restart nginx
+    - name: Create self-signed SSL/TLS certificate
+      openssl_certificate:
+        path: /etc/nginx/ssl/nginx.crt
+        privatekey_path: /etc/nginx/ssl/nginx.key
+        csr_path: /etc/nginx/ssl/nginx.csr
+        provider: selfsigned
+        organization_name: "Example Company"
+        organization_unit_name: "IT Department"
+        email_address: "admin@example.com"
+        country_name: "US"
+        state_or_province_name: "NC"
+        locality_name: "Raleigh"
+        key_size: 2048
+        force: true
+
+    - name: Configure Nginx to use the self-signed certificate
+      lineinfile:
+        path: /etc/nginx/conf.d/default.conf
+        regexp: ^(\s+)ssl_certificate
+        line: \1ssl_certificate /etc/nginx/ssl/nginx.crt;
+      notify: restart nginx
+
+    - name: Configure Nginx to use the private key for the self-signed certificate
+      lineinfile:
+        path: /etc/nginx/conf.d/default.conf
+        regexp: ^(\s+)ssl_certificate_key
+        line: \1ssl_certificate_key /etc/nginx/ssl/nginx.key;
+      notify: restart nginx
+
+  handlers:
+    - name: restart nginx
       service:
         name: nginx
-        state: reloaded
+        state: restarted
