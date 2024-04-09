@@ -1,9 +1,5 @@
 ---
 - hosts: all
-  vars:
-    cert_dir: /etc/nginx/ssl
-    cert_name: example.com
-    cert_subject: "/C=US/ST=New York/L=New York/O=Example/CN=example.com"
   become: true
   tasks:
     - name: Install Nginx
@@ -29,31 +25,6 @@
           </body>
           </html
       notify: restart nginx
-
-    - name: Create directory for SSL certificates
-      file:
-        path: "{{ cert_dir }}"
-        state: directory
-
-    - name: Generate private key
-      openssl_privatekey:
-        path: "{{ cert_dir }}/{{ cert_name }}.key"
-        size: 2048
-
-    - name: Generate CSR (Certificate Signing Request)
-      openssl_csr:
-        path: "{{ cert_dir }}/{{ cert_name }}.csr"
-        privatekey_path: "{{ cert_dir }}/{{ cert_name }}.key"
-        common_name: "{{ cert_name }}"
-        subject: "{{ cert_subject }}"
-        subject_alt_name: "DNS:{{ cert_name }}"
-
-    - name: Generate self-signed certificate
-      openssl_certificate:
-        path: "{{ cert_dir }}/{{ cert_name }}.crt"
-        privatekey_path: "{{ cert_dir }}/{{ cert_name }}.key"
-        csr_path: "{{ cert_dir }}/{{ cert_name }}.csr"
-        provider: selfsigned
 
   handlers:
     - name: restart nginx
